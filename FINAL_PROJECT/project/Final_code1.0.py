@@ -85,13 +85,13 @@ def run():
                         deliveries_done+=1
                     if deliveries_done == 6:
                         sleep(0.5)
-                        LEFT_MOTOR.set_power(-BASE_SPEED)
-                        RIGHT_MOTOR.set_power(BASE_SPEED)
+                        LEFT_MOTOR.set_position(-360)
+                        RIGHT_MOTOR.set_position(360)
                         sleep(0.5)
                         while color_choosing(LINE_SENSOR.get_value()) != 6:
                             backwards()
-                        LEFT_MOTOR.set_power(-BASE_SPEED)
-                        RIGHT_MOTOR.set_power(BASE_SPEED)
+                        LEFT_MOTOR.set_position(-360)
+                        RIGHT_MOTOR.set_position(360)
                         break
     except BaseException:
         print ("Done with the program")
