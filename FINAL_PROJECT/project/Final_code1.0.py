@@ -4,20 +4,22 @@ from math import sqrt
 from RGB import color_choosing
 wait_ready_sensors(True)
 
-LEFT_MOTOR = Motor('A')
-RIGHT_MOTOR = Motor('D')
-DELIVERY_MOTOR = Motor('B')
-PUSHING_MOTOR = Motor('C')
+LEFT_MOTOR = Motor('D')
+RIGHT_MOTOR = Motor('A')
+DELIVERY_MOTOR = Motor('C')
+PUSHING_MOTOR = Motor('B')
 
-LINE_SENSOR=EV3ColorSensor(2)
-COLOR_SENSOR=EV3ColorSensor(1)
-TOUCH_SENSOR=TouchSensor(3)
+LINE_SENSOR=EV3ColorSensor(3)
+COLOR_SENSOR=EV3ColorSensor(2)
+TOUCH_SENSOR=TouchSensor(4)
 
 BASE_SPEED=20
 
 def forwards(left_motor,right_motor):
-    value=LINE_SENSOR.get_value()
-    color=color_chossing(value)
+    value=LINE_SENSOR.get_value()[:-1]
+    while value == None:
+        value=LINE_SENSOR.get_value()[:-1]
+    color=color_choosing(value)
     if color == 1:
         left_motor.set_power(BASE_SPEED)
         right_motor.set_power(BASE_SPEED+20)
@@ -98,9 +100,8 @@ def run():
         LEFT_MOTOR.set_power(0)
         RIGHT_MOTOR.set_power(0)
         reset_brick()
-        output_file.close()
         exit()
 
 if __name__ == "__main__":
     run()
-        
+
