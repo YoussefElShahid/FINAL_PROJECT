@@ -29,10 +29,7 @@ def real_value(sensor):
     print(value)
     return value
 
-def PID(value,sign,base_speed):
-    integral=0
-    derivative=0
-    last_error=0
+def PID(value,sign,base_speed,integral,derivative,last_error):
     
     value_b=value[2]
     error=value_b-TARGET
@@ -46,6 +43,7 @@ def PID(value,sign,base_speed):
     else:
         LEFT_MOTOR.set_power((base_speed+(sign*turn_rate))*-1)
         RIGHT_MOTOR.set_power((base_speed-(sign*turn_rate))*-1)
+    return [integral,derivative,last_error]
     
 def delivery_protocol(degrees):
     DELIVERY_MOTOR.set_position(degrees)
@@ -69,7 +67,7 @@ def delivery(color):
         delivery_protocol(-570)
     elif color == 6:
         delivery_protocol(-300)
-def forwards(greens):
+def forwards(greens,integral,derivative,last_error):
     base_speed=25
     value=real_value(LINE_SENSOR)
     print(value)
@@ -81,9 +79,11 @@ def forwards(greens):
             RIGHT_MOTOR.set_power(-10)
             value=real_value(LINE_SENSOR)
             sleep(0.1)
-    PID(value,1,base_speed)
+    integral=PID(value,1,base_speed,integral,derivative,last_error)[0]
+    derivative=PID(value,1,base_speed,integral,derivative,last_error)[1]
+    last_error=PID(value,1,base_speed,integral,derivative,last_error)[2]
     return greens
-def backwards(input_list):
+def backwards(input_list,integral,derivative,last_error):
     base_speed=13
     trigger=0
     value=real_value(LINE_SENSOR)
@@ -104,20 +104,27 @@ def backwards(input_list):
             LEFT_MOTOR.set_power(0)
             RIGHT_MOTOR.set_power(0)
             sleep(0.5)
-            #LEFT_MOTOR.set_position_relative(-270)
-            #RIGHT_MOTOR.set_position_relative(-270)
+            LEFT_MOTOR.set_position_relative(-200)
+            RIGHT_MOTOR.set_position_relative(-200)
             sleep(0.5)
             delivery(color_choosing(col[:-1]))
-            sleep(0.5)
+            sleep(1)
             trigger-=1
+            LEFT_MOTOR.set_position_relative(150)
+            RIGHT_MOTOR.set_position_relative(150)
     value=real_value(LINE_SENSOR)
-    PID(value,-1,base_speed)
+    integral=PID(value,1,base_speed,integral,derivative,last_error)[0]
+    derivative=PID(value,1,base_speed,integral,derivative,last_error)[1]
+    last_error=PID(value,1,base_speed,integral,derivative,last_error)[2]
     print(input_list) 
 
 if __name__ == "__main__":
     try:
         greens_detected=0
         deliveries_done=[]
+        integral=0
+        derivative=0
+        last_error=0
         while True:
             '''if greens_detected<6:
                 greens_detected=forwards(greens_detected)
@@ -133,7 +140,7 @@ if __name__ == "__main__":
                 backwards(deliveries_done)
             if len(deliveries_done)==6:
                 break'''
-            backwards(deliveries_done)
+            backwards(deliveries_done,integral,derivative,last_error)
             #print(LINE_SENSOR.get_value())
             #value=real_value(LINE_SENSOR)
     except BaseException as e :
